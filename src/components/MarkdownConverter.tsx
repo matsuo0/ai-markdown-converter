@@ -39,7 +39,7 @@ export default function MarkdownConverter() {
       const result = await convertToMarkdown(inputText)
       setMarkdownOutput(result)
     } catch (err) {
-      setError('変換中にエラーが発生しました。もう一度お試しください。')
+      setError('要約中にエラーが発生しました。もう一度お試しください。')
       console.error('Conversion error:', err)
     } finally {
       setIsLoading(false)
@@ -68,7 +68,7 @@ export default function MarkdownConverter() {
             hasApiKey ? 'text-green-800' : 'text-yellow-800'
           }`}>
             {hasApiKey 
-              ? '✅ OpenAI APIキーが設定されています（高度なAI変換を使用）'
+              ? '✅ OpenAI APIキーが設定されています（高度なAI要約を使用）'
               : '⚠️ OpenAI APIキーが設定されていません（基本的な変換を使用）'
             }
           </p>
@@ -78,13 +78,13 @@ export default function MarkdownConverter() {
       {/* 入力エリア */}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <label htmlFor="input-text" className="block text-sm font-medium text-gray-700 mb-2">
-          変換したい文章を入力してください
+          要約したい文章を入力してください
         </label>
         <textarea
           id="input-text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="ここに文章を入力してください..."
+          placeholder="ここに要約したい文章を入力してください..."
           className="w-full h-32 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
           disabled={isLoading}
         />
@@ -94,7 +94,7 @@ export default function MarkdownConverter() {
             disabled={isLoading || !inputText.trim()}
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {isLoading ? '変換中...' : 'Markdownに変換'}
+            {isLoading ? '要約中...' : '要約してMarkdownに変換'}
           </button>
           <span className="text-sm text-gray-500">
             {inputText.length} 文字
@@ -113,7 +113,7 @@ export default function MarkdownConverter() {
       {markdownOutput && (
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Markdown出力</h3>
+            <h3 className="text-lg font-semibold text-gray-900">要約結果（Markdown）</h3>
             <button
               onClick={handleCopy}
               className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
@@ -132,7 +132,7 @@ export default function MarkdownConverter() {
       {/* プレビューエリア */}
       {markdownOutput && (
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">プレビュー</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">要約プレビュー</h3>
           <div className="prose max-w-none">
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}

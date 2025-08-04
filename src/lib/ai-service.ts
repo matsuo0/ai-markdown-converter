@@ -18,10 +18,10 @@ export async function convertToMarkdown(text: string): Promise<string> {
       throw new Error(data.error)
     }
 
-    return data.markdown || '変換に失敗しました'
+    return data.markdown || '要約に失敗しました'
   } catch (error) {
     console.error('AI conversion error:', error)
-    throw new Error('AI変換サービスでエラーが発生しました')
+    throw new Error('AI要約サービスでエラーが発生しました')
   }
 }
 

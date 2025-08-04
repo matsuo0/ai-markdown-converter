@@ -46,16 +46,20 @@ export async function POST(request: NextRequest) {
           messages: [
             {
               role: "system",
-              content: `あなたは文章をMarkdown形式に変換する専門家です。
-以下の指示に従って変換してください：
+              content: `あなたは文章を要約してMarkdown形式にまとめる専門家です。
+以下の指示に従って要約とMarkdown変換を行ってください：
 
-1. 入力された文章を適切なMarkdown形式に変換する
-2. 見出し、リスト、強調、リンクなどのMarkdown記法を適切に使用する
-3. 文章の構造を保ちながら、読みやすいMarkdownにする
-4. 不要な装飾は避け、シンプルで実用的なMarkdownを生成する
-5. 日本語の文章に適した変換を行う
+1. 入力された文章の内容を理解し、重要なポイントを抽出する
+2. 要約した内容を適切なMarkdown形式で整理する
+3. 以下の要素を含めて要約する：
+   - メインのトピックやテーマ
+   - 重要なポイントやキーワード
+   - 結論や要点
+4. 見出し、リスト、強調、引用などのMarkdown記法を適切に使用する
+5. 読みやすく、構造化された要約を作成する
+6. 日本語の文章に適した要約を行う
 
-変換結果のみを返してください。説明やコメントは含めないでください。`
+要約結果のみを返してください。説明やコメントは含めないでください。`
             },
             {
               role: "user",
@@ -66,7 +70,7 @@ export async function POST(request: NextRequest) {
           max_tokens: 2000,
         })
 
-        markdown = response.choices[0]?.message?.content || '変換に失敗しました'
+        markdown = response.choices[0]?.message?.content || '要約に失敗しました'
       } catch (error) {
         console.error('OpenAI API error:', error)
         // OpenAIが失敗した場合はフォールバックを使用
@@ -81,7 +85,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json(
-      { error: '変換中にエラーが発生しました' },
+      { error: '要約中にエラーが発生しました' },
       { status: 500 }
     )
   }

@@ -9,10 +9,10 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            AI Markdown Converter
+            AI 文章要約・Markdown変換
           </h1>
           <p className="text-lg text-gray-600">
-            文章を入力して、AIがMarkdown形式に変換します
+            文章を入力して、AIが要約してMarkdown形式にまとめます
           </p>
         </div>
         
