@@ -133,10 +133,26 @@ export default function MarkdownConverter() {
       {markdownOutput && (
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">要約プレビュー</h3>
-          <div className="prose max-w-none">
+          <div className="prose prose-sm max-w-none">
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               className="markdown-preview"
+              components={{
+                h1: ({node, ...props}) => <h1 className="text-2xl font-bold mb-4 text-gray-900" {...props} />,
+                h2: ({node, ...props}) => <h2 className="text-xl font-bold mb-3 text-gray-800" {...props} />,
+                h3: ({node, ...props}) => <h3 className="text-lg font-semibold mb-2 text-gray-700" {...props} />,
+                p: ({node, ...props}) => <p className="mb-3 text-gray-700 leading-relaxed" {...props} />,
+                ul: ({node, ...props}) => <ul className="list-disc list-inside mb-3 text-gray-700" {...props} />,
+                ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-3 text-gray-700" {...props} />,
+                li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                strong: ({node, ...props}) => <strong className="font-bold text-gray-900" {...props} />,
+                em: ({node, ...props}) => <em className="italic text-gray-800" {...props} />,
+                blockquote: ({node, ...props}) => <blockquote className="border-l-4 border-gray-300 pl-4 italic text-gray-600 mb-3" {...props} />,
+                code: ({node, inline, ...props}: any) => inline ? 
+                  <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono" {...props} /> :
+                  <code className="block bg-gray-100 p-3 rounded text-sm font-mono mb-3" {...props} />,
+                hr: ({node, ...props}) => <hr className="border-gray-300 my-4" {...props} />
+              }}
             >
               {markdownOutput}
             </ReactMarkdown>
