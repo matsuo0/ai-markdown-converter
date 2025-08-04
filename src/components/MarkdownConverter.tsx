@@ -69,7 +69,7 @@ export default function MarkdownConverter() {
           }`}>
             {hasApiKey 
               ? '✅ OpenAI APIキーが設定されています（高度なAI要約を使用）'
-              : '⚠️ OpenAI APIキーが設定されていません（基本的な変換を使用）'
+              : '⚠️ OpenAI APIキーが設定されていません（基本的な変換を使用）。より高度な要約のためには、.env.localファイルにOPENAI_API_KEYを設定してください。'
             }
           </p>
         </div>

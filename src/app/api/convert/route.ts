@@ -49,95 +49,57 @@ function simpleMarkdownConverter(text: string): string {
   return markdown
 }
 
-// より高度な汎用Markdown変換関数
-function advancedMarkdownConverter(text: string): string {
-  let markdown = text
-
-  // 段落を分離
-  markdown = markdown.replace(/\n\n+/g, '\n\n')
-
-  // 見出しの検出（より柔軟なパターン）
-  markdown = markdown.replace(/^(.+?(?:である|です|だ|でした|とは|について|についての|に関する))。$/gm, '# $1')
-
-  // 強調（「」で囲まれた部分）
-  markdown = markdown.replace(/「([^」]+)」/g, '**$1**')
-
-  // リスト（行頭に「・」「-」「*」がある場合）
-  markdown = markdown.replace(/^[・\-*]\s*(.+)$/gm, '- $1')
-
-  // 番号付きリスト（数字.で始まる行）
-  markdown = markdown.replace(/^(\d+)\.\s*(.+)$/gm, '$1. $2')
-
-  // 引用（行頭に「>」がある場合）
-  markdown = markdown.replace(/^>\s*(.+)$/gm, '> $1')
-
-  // コード（`で囲まれた部分）
-  markdown = markdown.replace(/`([^`]+)`/g, '`$1`')
-
-  // リンク（URLの検出）
-  markdown = markdown.replace(/(https?:\/\/[^\s]+)/g, '[$1]($1)')
-
-  // 斜体（*で囲まれた部分）
-  markdown = markdown.replace(/\*([^*]+)\*/g, '*$1*')
-
-  // 太字（**で囲まれた部分）
-  markdown = markdown.replace(/\*\*([^*]+)\*\*/g, '**$1**')
-
-  // 水平線（---で始まる行）
-  markdown = markdown.replace(/^---$/gm, '---')
-
-  // 改行の処理（段落間の改行を適切に処理）
-  markdown = markdown.replace(/\n/g, '\n\n')
-
-  return markdown
-}
-
-// 構造化された要約生成関数
-function structuredSummaryConverter(text: string): string {
+// 汎用的な構造化要約生成関数
+function genericStructuredSummary(text: string): string {
   // 基本的な変換を適用
-  let markdown = advancedMarkdownConverter(text)
+  let markdown = simpleMarkdownConverter(text)
   
-  // 構造化された要約のテンプレートを適用
+  // 文章の内容を分析して適切な構造化を行う
   const lines = markdown.split('\n')
   const structuredLines = []
   
-  // 最初の段落を概要として扱う
+  // トピックを抽出
+  let topic = ''
   let hasSummary = false
-  let hasFeatures = false
-  let hasDevelopment = false
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
     
-    // 見出しを検出して構造化
+    // 最初の見出しからトピックを抽出
     if (line.startsWith('#') && !hasSummary) {
-      // 最初の見出しを概要セクションに変換
       const title = line.replace('#', '').trim()
-      const mainConcept = title.split('（')[0].split('は')[0].trim()
+      topic = title.split('（')[0].split('は')[0].split('について')[0].trim()
       
       structuredLines.push('---')
       structuredLines.push('')
-      structuredLines.push(`## ${mainConcept}の概要と特徴`)
+      structuredLines.push(`## ${topic}の概要と特徴`)
       structuredLines.push('')
-      structuredLines.push(`**${mainConcept}**は、${title.includes('は') ? title.split('は')[1]?.replace(/[。、].*$/, '') : '重要な概念'}です。`)
+      
+      // 概要文を生成
+      if (title.includes('は')) {
+        const description = title.split('は')[1]?.replace(/[。、].*$/, '') || '重要な概念'
+        structuredLines.push(`**${topic}**は、${description}です。`)
+      } else {
+        structuredLines.push(`**${topic}**について説明します。`)
+      }
       structuredLines.push('')
       hasSummary = true
-    } else if (line.includes('特徴') || line.includes('音楽的') || line.includes('要素')) {
+    } else if (line.includes('特徴') || line.includes('特性') || line.includes('要素')) {
       // 特徴セクションを追加
-      if (!hasFeatures) {
-        structuredLines.push('### 音楽的特徴')
-        structuredLines.push('')
-        hasFeatures = true
-      }
+      structuredLines.push('### 主要な特徴')
+      structuredLines.push('')
       structuredLines.push(`* ${line.replace(/^[#\-\*]*\s*/, '')}`)
-    } else if (line.includes('発展') || line.includes('影響') || line.includes('歴史')) {
+    } else if (line.includes('発展') || line.includes('影響') || line.includes('歴史') || line.includes('変化')) {
       // 発展セクションを追加
-      if (!hasDevelopment) {
-        structuredLines.push('')
-        structuredLines.push('### 音楽の発展')
-        structuredLines.push('')
-        hasDevelopment = true
-      }
+      structuredLines.push('')
+      structuredLines.push('### 発展と影響')
+      structuredLines.push('')
+      structuredLines.push(`* ${line.replace(/^[#\-\*]*\s*/, '')}`)
+    } else if (line.includes('地域') || line.includes('場所') || line.includes('場所')) {
+      // 地域セクションを追加
+      structuredLines.push('')
+      structuredLines.push('### 地域による違い')
+      structuredLines.push('')
       structuredLines.push(`* ${line.replace(/^[#\-\*]*\s*/, '')}`)
     } else if (line.startsWith('-') || line.startsWith('*')) {
       // リスト項目をそのまま追加
@@ -146,14 +108,6 @@ function structuredSummaryConverter(text: string): string {
       // 通常の段落を追加
       structuredLines.push(line)
     }
-  }
-  
-  // 影響を受けた音楽セクションを追加
-  if (markdown.includes('影響') || markdown.includes('発展')) {
-    structuredLines.push('')
-    structuredLines.push('### 影響を受けた音楽')
-    structuredLines.push('')
-    structuredLines.push('**スカ**や**ロックステディ**から発展したレゲエは、ジャマイカのフォーク音楽である**メント**、アメリカの**リズム・アンド・ブルース**、**カリプソ**など、多様な音楽の影響を受けて成立しました。')
   }
   
   return structuredLines.join('\n')
@@ -229,12 +183,12 @@ export async function POST(request: NextRequest) {
         markdown = response.choices[0]?.message?.content || '要約に失敗しました'
       } catch (error) {
         console.error('OpenAI API error:', error)
-        // OpenAIが失敗した場合は構造化された要約生成を使用
-        markdown = structuredSummaryConverter(text)
+        // OpenAIが失敗した場合は汎用的な要約生成を使用
+        markdown = genericStructuredSummary(text)
       }
     } else {
-      // APIキーがない場合は高度なフォールバックを使用
-      markdown = structuredSummaryConverter(text)
+      // APIキーがない場合は汎用的な要約生成を使用
+      markdown = genericStructuredSummary(text)
     }
     
     return NextResponse.json({ markdown })
