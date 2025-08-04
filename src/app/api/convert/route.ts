@@ -6,22 +6,89 @@ const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
 
-// フォールバック用のシンプルなMarkdown変換関数
+// 汎用的なMarkdown変換関数
 function simpleMarkdownConverter(text: string): string {
   let markdown = text
 
-  // 見出しの検出（行末に「。」がある場合）
-  markdown = markdown.replace(/^(.+。)\.$/gm, '# $1')
-  
+  // 段落を分離（空行で区切る）
+  markdown = markdown.replace(/\n\n+/g, '\n\n')
+
+  // 見出しの検出（文末に「である」「です」「だ」「でした」がある場合）
+  markdown = markdown.replace(/^(.+?(?:である|です|だ|でした))。$/gm, '# $1')
+
   // 強調（「」で囲まれた部分）
   markdown = markdown.replace(/「([^」]+)」/g, '**$1**')
-  
-  // リスト（行頭に「・」や「-」がある場合）
-  markdown = markdown.replace(/^[・\-]\s*(.+)$/gm, '- $1')
-  
-  // 段落の分離
-  markdown = markdown.replace(/\n\n/g, '\n\n')
-  
+
+  // リスト（行頭に「・」「-」「*」がある場合）
+  markdown = markdown.replace(/^[・\-*]\s*(.+)$/gm, '- $1')
+
+  // 番号付きリスト（数字.で始まる行）
+  markdown = markdown.replace(/^(\d+)\.\s*(.+)$/gm, '$1. $2')
+
+  // 引用（行頭に「>」がある場合）
+  markdown = markdown.replace(/^>\s*(.+)$/gm, '> $1')
+
+  // コード（`で囲まれた部分）
+  markdown = markdown.replace(/`([^`]+)`/g, '`$1`')
+
+  // リンク（URLの検出）
+  markdown = markdown.replace(/(https?:\/\/[^\s]+)/g, '[$1]($1)')
+
+  // 斜体（*で囲まれた部分）
+  markdown = markdown.replace(/\*([^*]+)\*/g, '*$1*')
+
+  // 太字（**で囲まれた部分）
+  markdown = markdown.replace(/\*\*([^*]+)\*\*/g, '**$1**')
+
+  // 水平線（---で始まる行）
+  markdown = markdown.replace(/^---$/gm, '---')
+
+  // 改行の処理（段落間の改行を適切に処理）
+  markdown = markdown.replace(/\n/g, '\n\n')
+
+  return markdown
+}
+
+// より高度な汎用Markdown変換関数
+function advancedMarkdownConverter(text: string): string {
+  let markdown = text
+
+  // 段落を分離
+  markdown = markdown.replace(/\n\n+/g, '\n\n')
+
+  // 見出しの検出（より柔軟なパターン）
+  markdown = markdown.replace(/^(.+?(?:である|です|だ|でした|とは|について|についての|に関する))。$/gm, '# $1')
+
+  // 強調（「」で囲まれた部分）
+  markdown = markdown.replace(/「([^」]+)」/g, '**$1**')
+
+  // リスト（行頭に「・」「-」「*」がある場合）
+  markdown = markdown.replace(/^[・\-*]\s*(.+)$/gm, '- $1')
+
+  // 番号付きリスト（数字.で始まる行）
+  markdown = markdown.replace(/^(\d+)\.\s*(.+)$/gm, '$1. $2')
+
+  // 引用（行頭に「>」がある場合）
+  markdown = markdown.replace(/^>\s*(.+)$/gm, '> $1')
+
+  // コード（`で囲まれた部分）
+  markdown = markdown.replace(/`([^`]+)`/g, '`$1`')
+
+  // リンク（URLの検出）
+  markdown = markdown.replace(/(https?:\/\/[^\s]+)/g, '[$1]($1)')
+
+  // 斜体（*で囲まれた部分）
+  markdown = markdown.replace(/\*([^*]+)\*/g, '*$1*')
+
+  // 太字（**で囲まれた部分）
+  markdown = markdown.replace(/\*\*([^*]+)\*\*/g, '**$1**')
+
+  // 水平線（---で始まる行）
+  markdown = markdown.replace(/^---$/gm, '---')
+
+  // 改行の処理（段落間の改行を適切に処理）
+  markdown = markdown.replace(/\n/g, '\n\n')
+
   return markdown
 }
 
@@ -73,12 +140,12 @@ export async function POST(request: NextRequest) {
         markdown = response.choices[0]?.message?.content || '要約に失敗しました'
       } catch (error) {
         console.error('OpenAI API error:', error)
-        // OpenAIが失敗した場合はフォールバックを使用
-        markdown = simpleMarkdownConverter(text)
+        // OpenAIが失敗した場合は高度なフォールバックを使用
+        markdown = advancedMarkdownConverter(text)
       }
     } else {
-      // APIキーがない場合はフォールバックを使用
-      markdown = simpleMarkdownConverter(text)
+      // APIキーがない場合は高度なフォールバックを使用
+      markdown = advancedMarkdownConverter(text)
     }
     
     return NextResponse.json({ markdown })
